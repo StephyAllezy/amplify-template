@@ -9,10 +9,12 @@ specifies that any user authenticated via an API key can "create", "read",
 const schema = a.schema({
   User: a
     .model({
-      authId: a.string(),
-      email: a.string()
+      authId: a.string().required(),
+      email: a.string().required(),
+      firstName: a.string(),
+      lastName: a.string()
     })
-    .authorization((allow) => [allow.owner()]),
+    .authorization((allow) => [allow.owner(), allow.group("Admin")]),  //allow owner and admin to access user account
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -20,11 +22,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    // API Key is used for a.allow.public() rules
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    defaultAuthorizationMode: "userPool",               // Cognito authentification
   },
 });
 
